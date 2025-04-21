@@ -90,7 +90,6 @@
         .exercise-item {
              background-color: #ffffff; /* White background for item */
              border: 1px solid #e5e7eb; /* Light border */
-             /* Removed cursor: move */
         }
         .exercise-item .update-form input {
             width: 70px; /* Fixed width for inputs */
@@ -105,8 +104,6 @@
         .history-table th, .history-table td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; }
         .history-table th { background-color: #f3f4f6; font-weight: 500; }
         .history-table tr:last-child td { border-bottom: none; }
-
-        /* REMOVED SortableJS Styles */
 
     </style>
 </head>
@@ -249,18 +246,29 @@
             exerciseContainer.innerHTML = '';
 
             // Populate exercise container with cards
-            const exercises = sectionData.exercises; // Get reference for index check
+            const exercises = sectionData.exercises;
             if (exercises && exercises.length > 0) {
-                exercises.forEach((exercise, index) => { // Added index parameter
+                exercises.forEach((exercise, index) => {
                      if (typeof exercise.id !== 'number') { console.error("Skipping rendering exercise due to invalid ID:", exercise); return; }
 
+                    // Get Last Updated Date
+                    let lastUpdatedText = '<span class="italic">Never tracked</span>';
+                    if (exercise.history && exercise.history.length > 0) {
+                        try {
+                            const lastDateStr = exercise.history[0].date;
+                            const dateObj = new Date(lastDateStr);
+                            if (!isNaN(dateObj.getTime())) {
+                                lastUpdatedText = `Tracked: ${dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+                            } else { lastUpdatedText = 'Tracked: Invalid date'; }
+                        } catch (e) { lastUpdatedText = 'Tracked: Error'; console.error("Error formatting history date:", e); }
+                    }
+                    const lastUpdatedHtml = `<div class="text-xs text-gray-500 mb-3">${lastUpdatedText}</div>`;
+
                     const exerciseCard = document.createElement('div');
-                    // REMOVED data-id
                     exerciseCard.className = 'exercise-item p-3 rounded-md shadow-sm border border-gray-200 bg-white';
-                    // ** ADDED Up/Down Buttons, REMOVED Drag Handle **
                     exerciseCard.innerHTML = `
                         <div class="flex justify-between items-start mb-2 gap-2">
-                            <div class="flex-grow mr-2 min-w-0">
+                             <div class="flex-grow mr-2 min-w-0">
                                 <div id="name-display-container-${exercise.id}" class="flex items-center gap-2">
                                     <h5 id="name-display-${exercise.id}" class="font-semibold text-gray-800 break-words">${exercise.name}</h5>
                                     <button onclick="showEditNameInput(${exercise.id}, '${category}')" class="btn btn-accent btn-icon btn-xs flex-shrink-0" title="Edit Name">
@@ -292,11 +300,13 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="text-sm text-gray-600 mb-3"> Last: <span id="${category}-weight-${exercise.id}" class="font-medium text-gray-800">${exercise.weight || '-'}</span> /
+                        <div class="text-sm text-gray-600 mb-1"> Last: <span id="${category}-weight-${exercise.id}" class="font-medium text-gray-800">${exercise.weight || '-'}</span> /
                             <span id="${category}-reps-${exercise.id}" class="font-medium text-gray-800">${exercise.reps || '-'}</span>
                             <span class="text-xs text-gray-500">(Wt/Reps)</span>
                         </div>
-                        <div class="update-form flex flex-wrap gap-2 items-center"> <input type="text" id="${category}-input-weight-${exercise.id}" placeholder="Wt" class="border rounded px-2 py-1 text-sm w-20">
+                        ${lastUpdatedHtml}
+                        <div class="update-form flex flex-wrap gap-2 items-center">
+                            <input type="text" id="${category}-input-weight-${exercise.id}" placeholder="Wt" class="border rounded px-2 py-1 text-sm w-20">
                             <input type="text" id="${category}-input-reps-${exercise.id}" placeholder="Reps" class="border rounded px-2 py-1 text-sm w-20">
                             <button onclick="updateExercise('${category}', ${exercise.id})" class="btn btn-secondary btn-xs flex-grow xs:flex-grow-0">Update</button>
                         </div>
@@ -313,17 +323,16 @@
             renderWorkoutSection('push');
             renderWorkoutSection('pull');
             renderWorkoutSection('legs');
-            // REMOVED initializeAllSortables();
         }
 
         // --- Event Handlers ---
-        function markDone(category) {
+        function markDone(category) { /* ... (no changes needed) ... */
             const today = new Date().toISOString().split('T')[0];
             workoutData[category].lastWorkoutDate = today;
             saveData(workoutData);
             renderWorkoutSection(category);
          }
-        function updateExercise(category, exerciseId) { /* ... (no changes needed) ... */
+        function updateExercise(category, exerciseId) {
              if (typeof exerciseId !== 'number') { console.error("Update failed: exerciseId is not a number", exerciseId); return; }
              const weightInput = document.getElementById(`${category}-input-weight-${exerciseId}`);
              const repsInput = document.getElementById(`${category}-input-reps-${exerciseId}`);
@@ -341,36 +350,40 @@
                  exercise.weight = newWeight;
                  exercise.reps = newReps;
                  saveData(workoutData);
-                 document.getElementById(`${category}-weight-${exerciseId}`).textContent = newWeight || '-';
-                 document.getElementById(`${category}-reps-${exerciseId}`).textContent = newReps || '-';
+                 // Don't update display directly, re-render handles it including last updated date
+                 // document.getElementById(`${category}-weight-${exerciseId}`).textContent = newWeight || '-';
+                 // document.getElementById(`${category}-reps-${exerciseId}`).textContent = newReps || '-';
                  weightInput.value = '';
                  repsInput.value = '';
-                 const historyContent = document.getElementById(`history-content-${exerciseId}`);
-                 if (historyContent && historyContent.style.display !== 'none') {
-                     renderHistoryContent(exerciseId, category);
-                 }
+                 // Re-render the section to update the "Last Updated" date display
+                 renderWorkoutSection(category);
+                 // If history was open, re-open it after re-render (more complex state needed)
+                 // Or just let user re-open it. Let's keep it simple.
              } else { console.error("Exercise not found for ID (Update):", exerciseId); }
          }
+
+        // --- MODIFIED addExercise Function ---
         function addExercise(category) {
             const inputElement = document.getElementById(`new-${category}-exercise`);
             const exerciseName = inputElement.value.trim();
             if (exerciseName) {
                 const newExercise = { id: Date.now(), name: exerciseName, weight: "", reps: "", history: [] };
-                workoutData[category].exercises.unshift(newExercise);
+                // ** Use push() to add to the end **
+                workoutData[category].exercises.push(newExercise);
                 saveData(workoutData);
-                renderWorkoutSection(category); // Re-render will update order display
+                renderWorkoutSection(category); // Re-render will show it at the bottom
                 inputElement.value = '';
             } else { console.warn("Please enter an exercise name."); inputElement.focus(); }
          }
 
         // --- Remove/Confirmation Functions ---
-        function removeExercise(category, exerciseId) {
+        function removeExercise(category, exerciseId) { /* ... (no changes needed) ... */
              if (typeof exerciseId !== 'number') { console.error("Remove failed: exerciseId is not a number", exerciseId); return; }
              const exerciseIndex = workoutData[category].exercises.findIndex(ex => ex.id === exerciseId);
              if (exerciseIndex > -1) {
                  workoutData[category].exercises.splice(exerciseIndex, 1);
                  saveData(workoutData);
-                 renderWorkoutSection(category); // Re-render will update order display
+                 renderWorkoutSection(category);
              } else { console.error("Exercise not found for ID (Remove):", exerciseId); renderWorkoutSection(category); }
         }
         function showRemoveConfirmation(exerciseId, category) { /* ... (no changes needed) ... */
@@ -463,47 +476,24 @@
             }
          }
 
-         // --- NEW Reordering Functions ---
+         // --- Reordering Functions ---
          function moveExercise(exerciseId, category, direction) {
              const exercises = workoutData[category].exercises;
              const index = exercises.findIndex(ex => ex.id === exerciseId);
-
-             if (index === -1) {
-                 console.error("Exercise not found for move:", exerciseId);
-                 return;
-             }
-
-             let newIndex = index + direction; // +1 for down, -1 for up
-
-             // Check boundaries
-             if (newIndex < 0 || newIndex >= exercises.length) {
-                 // console.log("Cannot move exercise beyond boundaries."); // Optional log
-                 return; // Already at the top or bottom
-             }
-
-             // Simple swap
-             [exercises[index], exercises[newIndex]] = [exercises[newIndex], exercises[index]];
-
+             if (index === -1) { console.error("Exercise not found for move:", exerciseId); return; }
+             let newIndex = index + direction;
+             if (newIndex < 0 || newIndex >= exercises.length) { return; } // Already at boundary
+             [exercises[index], exercises[newIndex]] = [exercises[newIndex], exercises[index]]; // Swap
              saveData(workoutData);
-             renderWorkoutSection(category); // Re-render the section to show new order
+             renderWorkoutSection(category); // Re-render the section
          }
-
-         function moveExerciseUp(exerciseId, category) {
-             moveExercise(exerciseId, category, -1); // Move one step up (decrease index)
-         }
-
-         function moveExerciseDown(exerciseId, category) {
-             moveExercise(exerciseId, category, 1); // Move one step down (increase index)
-         }
-
-
-         // --- REMOVED SortableJS Initialization Functions ---
+         function moveExerciseUp(exerciseId, category) { moveExercise(exerciseId, category, -1); }
+         function moveExerciseDown(exerciseId, category) { moveExercise(exerciseId, category, 1); }
 
 
         // --- Initial Load ---
         function handleDOMContentLoaded() {
             renderAllSections();
-            // No need to initialize sortable anymore
         }
 
         if (document.readyState === 'loading') {
