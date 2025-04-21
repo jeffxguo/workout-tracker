@@ -18,46 +18,6 @@
             /* Light gray background */
         }
 
-        /* Custom styles for better table appearance */
-        th,
-        td {
-            padding: 10px 15px;
-            /* Consistent padding */
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-            /* Light border */
-            vertical-align: middle;
-            /* Align content vertically */
-        }
-
-        th {
-            background-color: #e5e7eb;
-            /* Slightly darker header */
-            font-weight: 600;
-            /* Bolder header text */
-            white-space: nowrap;
-            /* Prevent headers from wrapping */
-        }
-
-        tr:last-of-type td {
-            /* Target only last data row within tbody */
-            border-bottom: none;
-        }
-
-        /* Style for history row */
-        .history-row td {
-            background-color: #f9fafb;
-            /* Slightly different background */
-            padding: 15px;
-            border-bottom: 1px solid #e5e7eb;
-            /* Ensure border below history */
-        }
-
-        tr.exercise-row+tr.history-row td {
-            /* Add border only if history row follows exercise row */
-            border-top: 1px dashed #d1d5db;
-        }
-
         /* Style input fields */
         input[type="text"],
         input[type="number"] {
@@ -65,47 +25,27 @@
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
             /* Rounded corners md */
-            width: 100%;
-            /* Take full width in flex container */
-        }
-
-        /* Apply fixed width only on sm screens and up */
-        @media (min-width: 640px) {
-            input.input-responsive-width {
-                width: 80px;
-                /* Fixed width on larger screens */
-            }
+            /* Removed width constraint here, handled by flex/grid below */
         }
 
         /* --- Nicer Button Styles --- */
         .btn {
             display: inline-flex;
-            /* Use inline-flex for icon alignment */
             align-items: center;
-            /* Center icon vertically */
             justify-content: center;
-            /* Center icon horizontally */
             padding: 8px 16px;
-            /* Default padding */
             border-radius: 0.375rem;
-            /* rounded-md */
             font-weight: 500;
-            /* medium */
             text-align: center;
             cursor: pointer;
             transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            /* Smooth transitions */
             white-space: nowrap;
-            /* Prevent button text wrapping */
             box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-            /* Subtle shadow */
             outline: none;
             box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
-            /* Tailwind focus setup */
         }
 
         .btn:focus-visible {
-            /* Use focus-visible for keyboard nav */
             outline: 2px solid transparent;
             outline-offset: 2px;
             --tw-ring-offset-shadow: var(--tw-ring-offset-width, 2px) solid var(--tw-ring-offset-color, #fff);
@@ -115,7 +55,6 @@
 
         .btn:hover {
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            /* Slightly larger shadow on hover */
         }
 
         /* Color Variants */
@@ -165,30 +104,22 @@
             --tw-ring-color: #38bdf8;
         }
 
-        /* Sky blue for History */
         .btn-info:hover {
             background-color: #0284c7;
         }
 
-
         /* Size Variants */
         .btn-xs {
             padding: 4px 8px;
-            /* Smaller padding */
             font-size: 0.75rem;
-            /* text-xs */
             line-height: 1rem;
         }
 
-        /* Icon only button style */
         .btn-icon {
             padding: 6px;
-            /* Adjust padding for icon */
             font-size: 0.875rem;
-            /* text-sm */
             line-height: 1;
         }
-
 
         /* Card styling */
         .workout-card {
@@ -231,19 +162,32 @@
             flex-shrink: 0;
         }
 
-        /* Make table container scrollable */
-        .table-container {
-            overflow-x: auto;
-            width: 100%;
+        /* Exercise Item Card Styles */
+        .exercise-item {
+            background-color: #ffffff;
+            /* White background for item */
+            border: 1px solid #e5e7eb;
+            /* Light border */
         }
 
-        /* History table styles */
+        .exercise-item .update-form input {
+            width: 70px;
+            /* Fixed width for inputs */
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+
+        /* History content styles */
+        .history-content {
+            background-color: #f9fafb;
+            /* Slightly off-white background */
+        }
+
         .history-table {
             width: 100%;
             font-size: 0.875rem;
         }
 
-        /* text-sm */
         .history-table th,
         .history-table td {
             padding: 6px 10px;
@@ -261,39 +205,25 @@
     </style>
 </head>
 
-<body class="p-5 md:p-10">
-
-    <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Workout Tracker</h1>
+<body class="p-4 md:p-8">
+    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Workout Tracker</h1>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div id="push-section" class="workout-card">
             <div class="card-header">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-700">Push Day</h2>
+                    <h2 class="text-xl lg:text-2xl font-semibold text-gray-700">Push Day</h2>
                     <p class="text-sm">Last workout: <span id="push-last-date">Never</span> (<span id="push-days-ago"
                             class="font-medium">N/A</span> days ago)</p>
                 </div>
                 <button onclick="markDone('push')" class="btn btn-primary">Mark as Done Today</button>
             </div>
-            <div class="table-container">
-                <table class="w-full min-w-[600px] text-sm">
-                    <thead>
-                        <tr>
-                            <th>Exercise</th>
-                            <th>Last Weight (kg/lbs)</th>
-                            <th>Last Reps</th>
-                            <th>Update</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="push-exercises">
-                    </tbody>
-                </table>
+            <div id="push-exercises" class="space-y-3">
             </div>
             <div class="add-exercise-form">
                 <input type="text" id="new-push-exercise" placeholder="New Exercise Name"
-                    class="border rounded px-2 py-1">
+                    class="border rounded px-2 py-1 text-sm">
                 <button onclick="addExercise('push')" class="btn btn-accent">Add Exercise</button>
             </div>
         </div>
@@ -301,30 +231,17 @@
         <div id="pull-section" class="workout-card">
             <div class="card-header">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-700">Pull Day</h2>
+                    <h2 class="text-xl lg:text-2xl font-semibold text-gray-700">Pull Day</h2>
                     <p class="text-sm">Last workout: <span id="pull-last-date">Never</span> (<span id="pull-days-ago"
                             class="font-medium">N/A</span> days ago)</p>
                 </div>
                 <button onclick="markDone('pull')" class="btn btn-primary">Mark as Done Today</button>
             </div>
-            <div class="table-container">
-                <table class="w-full min-w-[600px] text-sm">
-                    <thead>
-                        <tr>
-                            <th>Exercise</th>
-                            <th>Last Weight (kg/lbs)</th>
-                            <th>Last Reps</th>
-                            <th>Update</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pull-exercises">
-                    </tbody>
-                </table>
+            <div id="pull-exercises" class="space-y-3">
             </div>
             <div class="add-exercise-form">
                 <input type="text" id="new-pull-exercise" placeholder="New Exercise Name"
-                    class="border rounded px-2 py-1">
+                    class="border rounded px-2 py-1 text-sm">
                 <button onclick="addExercise('pull')" class="btn btn-accent">Add Exercise</button>
             </div>
         </div>
@@ -332,30 +249,17 @@
         <div id="legs-section" class="workout-card">
             <div class="card-header">
                 <div>
-                    <h2 class="text-2xl font-semibold text-gray-700">Legs Day</h2>
+                    <h2 class="text-xl lg:text-2xl font-semibold text-gray-700">Legs Day</h2>
                     <p class="text-sm">Last workout: <span id="legs-last-date">Never</span> (<span id="legs-days-ago"
                             class="font-medium">N/A</span> days ago)</p>
                 </div>
                 <button onclick="markDone('legs')" class="btn btn-primary">Mark as Done Today</button>
             </div>
-            <div class="table-container">
-                <table class="w-full min-w-[600px] text-sm">
-                    <thead>
-                        <tr>
-                            <th>Exercise</th>
-                            <th>Last Weight (kg/lbs)</th>
-                            <th>Last Reps</th>
-                            <th>Update</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="legs-exercises">
-                    </tbody>
-                </table>
+            <div id="legs-exercises" class="space-y-3">
             </div>
             <div class="add-exercise-form">
                 <input type="text" id="new-legs-exercise" placeholder="New Exercise Name"
-                    class="border rounded px-2 py-1">
+                    class="border rounded px-2 py-1 text-sm">
                 <button onclick="addExercise('legs')" class="btn btn-accent">Add Exercise</button>
             </div>
         </div>
@@ -363,7 +267,7 @@
     </div>
 
     <script>
-        const STORAGE_KEY = 'workoutTrackerData_v3'; // Incremented key for new data structure
+        const STORAGE_KEY = 'workoutTrackerData_v3'; // Keep key same as previous version with history
 
         // --- Data Initialization ---
         function getInitialData() {
@@ -412,14 +316,8 @@
                         ['push', 'pull', 'legs'].forEach(category => {
                             if (parsedData[category].exercises && Array.isArray(parsedData[category].exercises)) {
                                 parsedData[category].exercises.forEach((ex, index) => {
-                                    // Ensure numeric ID
-                                    if (typeof ex.id !== 'number') {
-                                        ex.id = Date.now() + index;
-                                    }
-                                    // **MODIFICATION: Ensure history array exists**
-                                    if (!Array.isArray(ex.history)) {
-                                        ex.history = [];
-                                    }
+                                    if (typeof ex.id !== 'number') ex.id = Date.now() + index;
+                                    if (!Array.isArray(ex.history)) ex.history = [];
                                 });
                             } else {
                                 parsedData[category].exercises = [];
@@ -427,26 +325,20 @@
                         });
                         return parsedData;
                     }
-                } catch (error) {
-                    console.error("Error parsing stored data:", error);
-                }
+                } catch (error) { console.error("Error parsing stored data:", error); }
             }
             return getInitialData();
         }
 
         function saveData(data) {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-            } catch (error) {
-                console.error("Error saving data to localStorage:", error);
-                console.error("Could not save data. Local storage might be full or disabled.");
-            }
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+            catch (error) { console.error("Error saving data:", error); }
         }
 
         let workoutData = loadData();
 
         // --- Date Calculation ---
-        function calculateDaysAgo(dateString) {
+        function calculateDaysAgo(dateString) { /* ... (no changes needed) ... */
             if (!dateString) return 'N/A';
             const lastDate = new Date(dateString);
             const today = new Date();
@@ -457,12 +349,13 @@
             return diffDays;
         }
 
+
         // --- UI Rendering ---
         function renderWorkoutSection(category) {
             const sectionData = workoutData[category];
             const lastDateElem = document.getElementById(`${category}-last-date`);
             const daysAgoElem = document.getElementById(`${category}-days-ago`);
-            const exerciseTableBody = document.getElementById(`${category}-exercises`);
+            const exerciseContainer = document.getElementById(`${category}-exercises`);
 
             const diffDays = calculateDaysAgo(sectionData.lastWorkoutDate);
 
@@ -486,10 +379,10 @@
             }
             daysAgoElem.classList.add(daysColorClass);
 
-            // Clear existing table rows
-            exerciseTableBody.innerHTML = '';
+            // Clear existing content
+            exerciseContainer.innerHTML = '';
 
-            // Populate exercise table
+            // Populate exercise container with cards
             if (sectionData.exercises && sectionData.exercises.length > 0) {
                 sectionData.exercises.forEach((exercise) => {
                     if (typeof exercise.id !== 'number') {
@@ -497,41 +390,38 @@
                         return;
                     }
 
-                    // Main exercise row
-                    const row = document.createElement('tr');
-                    row.classList.add('exercise-row'); // Add class for styling hook
-                    row.innerHTML = `
-                        <td class="font-medium text-gray-900 whitespace-nowrap">${exercise.name}</td>
-                        <td id="${category}-weight-${exercise.id}" class="whitespace-nowrap">${exercise.weight || '-'}</td>
-                        <td id="${category}-reps-${exercise.id}" class="whitespace-nowrap">${exercise.reps || '-'}</td>
-                        <td class="min-w-[180px]">
-                            <div class="flex flex-col sm:flex-row gap-2 items-center">
-                                <input type="text" id="${category}-input-weight-${exercise.id}" placeholder="Wt" class="input-responsive-width">
-                                <input type="text" id="${category}-input-reps-${exercise.id}" placeholder="Reps" class="input-responsive-width">
-                                <button onclick="updateExercise('${category}', ${exercise.id})" class="btn btn-secondary btn-xs w-full sm:w-auto">Update</button>
-                            </div>
-                        </td>
-                        <td class="whitespace-nowrap"> <div class="flex gap-1"> <button onclick="toggleHistory(${exercise.id}, '${category}')" class="btn btn-info btn-icon btn-xs" title="View History">
-                                    <i class="fas fa-history"></i> </button>
+                    // Create exercise card div
+                    const exerciseCard = document.createElement('div');
+                    exerciseCard.className = 'exercise-item p-3 rounded-md shadow-sm border border-gray-200';
+                    // ** CORRECTED COMMENT SYNTAX **
+                    exerciseCard.innerHTML = `
+                        <div class="flex justify-between items-start mb-2 gap-2">
+                            <h5 class="font-semibold text-gray-800 break-words mr-2">${exercise.name}</h5>
+                            <div class="flex gap-1 flex-shrink-0"> <button onclick="toggleHistory(${exercise.id}, '${category}')" class="btn btn-info btn-icon btn-xs" title="View History">
+                                    <i class="fas fa-history"></i>
+                                </button>
                                 <button onclick="removeExercise('${category}', ${exercise.id})" class="btn btn-danger btn-icon btn-xs" title="Remove Exercise">
-                                     <i class="fas fa-times"></i> </button>
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                        </td>
+                        </div>
+                        <div class="text-sm text-gray-600 mb-3">
+                            Last: <span id="${category}-weight-${exercise.id}" class="font-medium text-gray-800">${exercise.weight || '-'}</span> /
+                            <span id="${category}-reps-${exercise.id}" class="font-medium text-gray-800">${exercise.reps || '-'}</span>
+                            <span class="text-xs text-gray-500">(Wt/Reps)</span>
+                        </div>
+                        <div class="update-form flex flex-wrap gap-2 items-center">
+                            <input type="text" id="${category}-input-weight-${exercise.id}" placeholder="Wt" class="border rounded px-2 py-1 text-sm w-20">
+                            <input type="text" id="${category}-input-reps-${exercise.id}" placeholder="Reps" class="border rounded px-2 py-1 text-sm w-20">
+                            <button onclick="updateExercise('${category}', ${exercise.id})" class="btn btn-secondary btn-xs flex-grow xs:flex-grow-0">Update</button> </div>
+                        <div id="history-content-${exercise.id}" style="display: none;" class="history-content mt-3 pt-3 border-t border-gray-200 rounded-b-md -mx-3 -mb-3">
+                            </div>
                     `;
-                    exerciseTableBody.appendChild(row);
-
-                    // Hidden history row (initially empty)
-                    const historyRow = document.createElement('tr');
-                    historyRow.id = `history-row-${exercise.id}`;
-                    historyRow.classList.add('history-row'); // Add class for styling hook
-                    historyRow.style.display = 'none'; // Initially hidden
-                    historyRow.innerHTML = `<td colspan="5" id="history-content-${exercise.id}" class="p-0"></td>`; // Remove padding here, add inside content
-                    exerciseTableBody.appendChild(historyRow);
+                    exerciseContainer.appendChild(exerciseCard);
                 });
             } else {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="5" class="text-center text-gray-500 py-4">No exercises added yet.</td>`;
-                exerciseTableBody.appendChild(row);
+                // Display message if no exercises
+                exerciseContainer.innerHTML = `<div class="text-center text-gray-500 py-4">No exercises added yet.</div>`;
             }
         }
 
@@ -542,169 +432,94 @@
         }
 
         // --- Event Handlers ---
-        function markDone(category) {
+        function markDone(category) { /* ... (no changes needed) ... */
             const today = new Date().toISOString().split('T')[0];
             workoutData[category].lastWorkoutDate = today;
             saveData(workoutData);
             renderWorkoutSection(category);
         }
 
-        function updateExercise(category, exerciseId) {
-            if (typeof exerciseId !== 'number') {
-                console.error("Update failed: exerciseId is not a number", exerciseId);
-                return;
-            }
-
+        function updateExercise(category, exerciseId) { /* ... (no changes needed) ... */
+            if (typeof exerciseId !== 'number') { console.error("Update failed: exerciseId is not a number", exerciseId); return; }
             const weightInput = document.getElementById(`${category}-input-weight-${exerciseId}`);
             const repsInput = document.getElementById(`${category}-input-reps-${exerciseId}`);
-            if (!weightInput || !repsInput) {
-                console.error("Update failed: Input elements not found for ID", exerciseId);
-                return;
-            }
+            if (!weightInput || !repsInput) { console.error("Update failed: Input elements not found for ID", exerciseId); return; }
             const newWeight = weightInput.value.trim();
             const newReps = repsInput.value.trim();
-
-            // Only proceed if weight or reps have value
-            if (!newWeight && !newReps) {
-                console.warn("Update ignored: Both weight and reps are empty.");
-                weightInput.value = '';
-                repsInput.value = '';
-                return;
-            }
-
-
+            if (!newWeight && !newReps) { console.warn("Update ignored: Both weight and reps are empty."); weightInput.value = ''; repsInput.value = ''; return; }
             const exerciseIndex = workoutData[category].exercises.findIndex(ex => ex.id === exerciseId);
-
             if (exerciseIndex > -1) {
                 const exercise = workoutData[category].exercises[exerciseIndex];
-
                 const currentDate = new Date().toISOString().split('T')[0];
-                const historyEntry = {
-                    date: currentDate,
-                    weight: newWeight,
-                    reps: newReps
-                };
-                // Ensure history array exists (should be guaranteed by loadData/getInitialData)
-                if (!Array.isArray(exercise.history)) {
-                    exercise.history = [];
-                }
-                // Add to beginning of history
+                const historyEntry = { date: currentDate, weight: newWeight, reps: newReps };
+                if (!Array.isArray(exercise.history)) { exercise.history = []; }
                 exercise.history.unshift(historyEntry);
-                // Optional: Limit history size? e.g., exercise.history = exercise.history.slice(0, 20);
-
-
-                // Update the top-level weight/reps in data
                 exercise.weight = newWeight;
                 exercise.reps = newReps;
-
-                // Save the updated data
                 saveData(workoutData);
-
-                // Update the display directly
                 document.getElementById(`${category}-weight-${exerciseId}`).textContent = newWeight || '-';
                 document.getElementById(`${category}-reps-${exerciseId}`).textContent = newReps || '-';
-
-                // Clear the input fields
                 weightInput.value = '';
                 repsInput.value = '';
-
-                // If history for this exercise was open, refresh it
-                const historyRow = document.getElementById(`history-row-${exerciseId}`);
-                if (historyRow && historyRow.style.display !== 'none') {
+                const historyContent = document.getElementById(`history-content-${exerciseId}`);
+                if (historyContent && historyContent.style.display !== 'none') {
                     renderHistoryContent(exerciseId, category);
                 }
-
-            } else {
-                console.error("Exercise not found for ID (Update):", exerciseId);
-            }
+            } else { console.error("Exercise not found for ID (Update):", exerciseId); }
         }
 
-        function addExercise(category) {
+        function addExercise(category) { /* ... (no changes needed) ... */
             const inputElement = document.getElementById(`new-${category}-exercise`);
             const exerciseName = inputElement.value.trim();
-
             if (exerciseName) {
-                const newExercise = {
-                    id: Date.now(),
-                    name: exerciseName,
-                    weight: "",
-                    reps: "",
-                    history: [] // Initialize history for new exercises
-                };
+                const newExercise = { id: Date.now(), name: exerciseName, weight: "", reps: "", history: [] };
                 workoutData[category].exercises.unshift(newExercise);
                 saveData(workoutData);
                 renderWorkoutSection(category);
                 inputElement.value = '';
-            } else {
-                console.warn("Please enter an exercise name.");
-                inputElement.focus();
-            }
+            } else { console.warn("Please enter an exercise name."); inputElement.focus(); }
         }
 
-        function removeExercise(category, exerciseId) {
-            if (typeof exerciseId !== 'number') {
-                console.error("Remove failed: exerciseId is not a number", exerciseId);
-                return;
-            }
+        function removeExercise(category, exerciseId) { /* ... (no changes needed) ... */
+            if (typeof exerciseId !== 'number') { console.error("Remove failed: exerciseId is not a number", exerciseId); return; }
             const exerciseIndex = workoutData[category].exercises.findIndex(ex => ex.id === exerciseId);
             if (exerciseIndex > -1) {
                 workoutData[category].exercises.splice(exerciseIndex, 1);
                 saveData(workoutData);
-                renderWorkoutSection(category); // Re-render the whole section
-            } else {
-                console.error("Exercise not found for ID (Remove):", exerciseId);
                 renderWorkoutSection(category);
-            }
+            } else { console.error("Exercise not found for ID (Remove):", exerciseId); renderWorkoutSection(category); }
         }
 
-        // --- NEW History Functions ---
+        // --- History Functions ---
         function renderHistoryContent(exerciseId, category) {
-            const contentCell = document.getElementById(`history-content-${exerciseId}`);
-            if (!contentCell) return;
-
+            const contentDiv = document.getElementById(`history-content-${exerciseId}`);
+            if (!contentDiv) return;
             const exercise = workoutData[category]?.exercises.find(ex => ex.id === exerciseId);
-
             if (!exercise || !exercise.history || exercise.history.length === 0) {
-                contentCell.innerHTML = `<div class="p-4 text-center text-gray-500">No history recorded yet.</div>`;
+                contentDiv.innerHTML = `<div class="p-4 text-center text-gray-500 text-sm">No history recorded yet.</div>`;
                 return;
             }
-
-            // Build history table HTML (history is already newest first due to unshift)
-            let historyHtml = `<div class="p-4"><h4 class="text-md font-semibold mb-2 text-gray-700">History for ${exercise.name}</h4><table class="history-table"><thead><tr><th>Date</th><th>Weight</th><th>Reps</th></tr></thead><tbody>`;
+            let historyHtml = `<div class="p-3"><h4 class="text-sm font-semibold mb-2 text-gray-600">History</h4><table class="history-table"><thead><tr><th>Date</th><th>Weight</th><th>Reps</th></tr></thead><tbody>`;
             exercise.history.forEach(entry => {
-                // Format date nicely
                 let displayDate = entry.date;
-                try {
-                    displayDate = new Date(entry.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                } catch (e) { /* ignore date formatting error */ }
-
-                historyHtml += `<tr>
-                     <td>${displayDate}</td>
-                     <td>${entry.weight || '-'}</td>
-                     <td>${entry.reps || '-'}</td>
-                 </tr>`;
+                try { displayDate = new Date(entry.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }); }
+                catch (e) { /* ignore */ }
+                historyHtml += `<tr><td>${displayDate}</td><td>${entry.weight || '-'}</td><td>${entry.reps || '-'}</td></tr>`;
             });
             historyHtml += `</tbody></table></div>`;
-
-            contentCell.innerHTML = historyHtml;
+            contentDiv.innerHTML = historyHtml;
         }
 
         function toggleHistory(exerciseId, category) {
-            const historyRow = document.getElementById(`history-row-${exerciseId}`);
-            if (!historyRow) return;
-
-            if (historyRow.style.display === 'none') {
-                // Render content before showing
+            const historyContent = document.getElementById(`history-content-${exerciseId}`);
+            if (!historyContent) return;
+            if (historyContent.style.display === 'none') {
                 renderHistoryContent(exerciseId, category);
-                historyRow.style.display = 'table-row'; // Show row
+                historyContent.style.display = 'block'; // Show div
             } else {
-                historyRow.style.display = 'none'; // Hide row
-                // Optional: Clear content when hiding?
-                // const contentCell = document.getElementById(`history-content-${exerciseId}`);
-                // if (contentCell) contentCell.innerHTML = '';
+                historyContent.style.display = 'none'; // Hide div
             }
         }
-
 
         // --- Initial Load ---
         if (document.readyState === 'loading') {
