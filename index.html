@@ -98,6 +98,17 @@
         }
         .exercise-item .name-edit-input { width: 100%; }
 
+        /* Toast notification */
+        #toast {
+            position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+            padding: 10px 20px; border-radius: 8px; font-size: 0.875rem; font-weight: 500;
+            color: white; z-index: 9999; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        #toast.show { opacity: 1; }
+        #toast.success { background-color: #059669; }
+        #toast.error   { background-color: #dc2626; }
+
         /* History content styles */
         .history-content { background-color: #f9fafb; }
         .history-table { width: 100%; font-size: 0.875rem; }
@@ -108,8 +119,19 @@
     </style>
 </head>
 <body class="p-4 md:p-8">
+    <div id="toast"></div>
 
-    <h1 class="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">Workout Tracker</h1>
+    <h1 class="text-2xl md:text-3xl font-bold mb-4 text-center text-gray-800">Workout Tracker</h1>
+
+    <div class="flex justify-center gap-3 mb-6 flex-wrap">
+        <button onclick="exportData()" class="btn btn-info btn-xs">
+            <i class="fas fa-download mr-1"></i> Export Backup
+        </button>
+        <label class="btn btn-accent btn-xs cursor-pointer">
+            <i class="fas fa-upload mr-1"></i> Import Backup
+            <input type="file" accept=".json" onchange="importData(event)" class="hidden">
+        </label>
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -162,6 +184,7 @@
 
     <script>
         const STORAGE_KEY = 'workoutTrackerData_v3';
+        const LEGACY_KEYS = ['workoutTrackerData_v1', 'workoutTrackerData_v2'];
 
         // --- Data Initialization ---
         function getInitialData() { /* ... (no changes needed) ... */
@@ -173,30 +196,94 @@
          }
 
         // --- Local Storage Interaction ---
-        function loadData() { /* ... (no changes needed) ... */
+
+        // Sanitize and coerce a parsed data object into the expected shape.
+        function sanitizeData(data) {
+            ['push', 'pull', 'legs'].forEach(category => {
+                if (!data[category]) data[category] = { lastWorkoutDate: null, exercises: [] };
+                if (!Array.isArray(data[category].exercises)) data[category].exercises = [];
+                data[category].exercises.forEach((ex, index) => {
+                    if (typeof ex.id !== 'number') ex.id = Date.now() + index;
+                    if (!Array.isArray(ex.history)) ex.history = [];
+                });
+            });
+            return data;
+        }
+
+        // Migrate data from older storage keys if current key has no data.
+        function migrateFromLegacyKeys() {
+            for (const oldKey of [...LEGACY_KEYS].reverse()) {
+                const raw = localStorage.getItem(oldKey);
+                if (!raw) continue;
+                try {
+                    const parsed = JSON.parse(raw);
+                    if (parsed.push && parsed.pull && parsed.legs) {
+                        const migrated = sanitizeData(parsed);
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+                        LEGACY_KEYS.forEach(k => localStorage.removeItem(k));
+                        console.info(`Migrated workout data from ${oldKey} to ${STORAGE_KEY}`);
+                        return migrated;
+                    }
+                } catch (e) { console.error(`Migration failed for ${oldKey}:`, e); }
+            }
+            return null;
+        }
+
+        function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
             if (storedData) {
                 try {
-                    const parsedData = JSON.parse(storedData);
-                    if (parsedData.push && parsedData.pull && parsedData.legs) {
-                        ['push', 'pull', 'legs'].forEach(category => {
-                            if (parsedData[category].exercises && Array.isArray(parsedData[category].exercises)) {
-                                parsedData[category].exercises.forEach((ex, index) => {
-                                    if (typeof ex.id !== 'number') ex.id = Date.now() + index;
-                                    if (!Array.isArray(ex.history)) ex.history = [];
-                                });
-                            } else { parsedData[category].exercises = []; }
-                        });
-                        return parsedData;
+                    const parsed = JSON.parse(storedData);
+                    if (parsed.push && parsed.pull && parsed.legs) {
+                        return sanitizeData(parsed);
                     }
                 } catch (error) { console.error("Error parsing stored data:", error); }
             }
+            // Try migrating from older keys before falling back to defaults
+            const migrated = migrateFromLegacyKeys();
+            if (migrated) return migrated;
             return getInitialData();
-         }
-        function saveData(data) { /* ... (no changes needed) ... */
+        }
+
+        function saveData(data) {
             try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-            catch (error) { console.error("Error saving data:", error); }
-         }
+            catch (error) { console.error("Error saving data:", error); alert("Warning: Could not save data. Storage may be full."); }
+        }
+
+        // --- Export / Import ---
+        function exportData() {
+            const dataStr = JSON.stringify(workoutData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workout-backup-${getLocalDateString()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (imported.push && imported.pull && imported.legs) {
+                        workoutData = sanitizeData(imported);
+                        saveData(workoutData);
+                        renderAllSections();
+                        showToast('Backup imported successfully!', 'success');
+                    } else {
+                        showToast('Invalid backup file.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Could not read backup file.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Allow re-importing same file
+        }
 
         let workoutData = loadData();
 
@@ -517,6 +604,16 @@
          function moveExerciseUp(exerciseId, category) { moveExercise(exerciseId, category, -1); }
          function moveExerciseDown(exerciseId, category) { moveExercise(exerciseId, category, 1); }
 
+
+        // --- Toast Notification ---
+        let toastTimer = null;
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `show ${type}`;
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.className = ''; }, 3000);
+        }
 
         // --- Initial Load ---
         function handleDOMContentLoaded() {
