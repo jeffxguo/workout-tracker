@@ -1,0 +1,198 @@
+/* ── Base ─────────────────────────────────────────── */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+}
+
+input[type="text"],
+input[type="number"] {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 1rem;      /* prevents iOS auto-zoom on focus */
+}
+
+/* ── Buttons ──────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    outline: none;
+    /* min touch target */
+    min-height: 40px;
+}
+.btn:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+.btn:hover:not(:disabled) {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+.btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Colour variants */
+.btn-primary   { background-color: #2563eb; color: white; }
+.btn-primary:hover:not(:disabled)   { background-color: #1d4ed8; }
+.btn-secondary { background-color: #059669; color: white; }
+.btn-secondary:hover:not(:disabled) { background-color: #047857; }
+.btn-accent    { background-color: #4b5563; color: white; }
+.btn-accent:hover:not(:disabled)    { background-color: #374151; }
+.btn-danger    { background-color: #dc2626; color: white; }
+.btn-danger:hover:not(:disabled)    { background-color: #b91c1c; }
+.btn-info      { background-color: #0ea5e9; color: white; }
+.btn-info:hover:not(:disabled)      { background-color: #0284c7; }
+.btn-warning   { background-color: #f59e0b; color: white; }
+.btn-warning:hover:not(:disabled)   { background-color: #d97706; }
+
+/* Size variants */
+.btn-sm   { padding: 7px 14px; font-size: 0.875rem; min-height: 36px; }
+.btn-xs   { padding: 6px 12px; font-size: 0.75rem;  min-height: 32px; }
+.btn-icon { padding: 8px;      font-size: 0.875rem; min-height: 36px; min-width: 36px; }
+
+/* ── Cards ────────────────────────────────────────── */
+.workout-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    padding: 16px;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ── Exercise items ───────────────────────────────── */
+.exercise-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+}
+
+.exercise-item .update-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.exercise-item .update-form input {
+    width: 76px;
+    flex-shrink: 0;
+    flex-grow: 0;
+}
+
+.exercise-item .name-edit-input {
+    width: 100%;
+}
+
+/* ── Add-exercise form ────────────────────────────── */
+.add-exercise-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+}
+.add-exercise-form input {
+    flex-grow: 1;
+    min-width: 140px;
+}
+
+/* ── History ──────────────────────────────────────── */
+.history-content { background-color: #f9fafb; }
+.history-table   { width: 100%; font-size: 0.8125rem; }
+.history-table th,
+.history-table td { padding: 6px 10px; border-bottom: 1px solid #e5e7eb; }
+.history-table th { background-color: #f3f4f6; font-weight: 600; text-align: left; }
+.history-table tr:last-child td { border-bottom: none; }
+
+/* ── PR badge ─────────────────────────────────────── */
+.pr-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    white-space: nowrap;
+}
+
+/* ── Toast ────────────────────────────────────────── */
+#toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: white;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+}
+#toast.show    { opacity: 1; }
+#toast.success { background-color: #059669; }
+#toast.error   { background-color: #dc2626; }
+
+/* ── Mobile tab navigation ────────────────────────── */
+.tab-bar {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #6b7280;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    /* touch target */
+    min-height: 48px;
+}
+.tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+/* Hide inactive tabs on mobile, show all on desktop */
+.tab-hidden { display: none; }
+
+@media (min-width: 1024px) {
+    .tab-hidden { display: block; }
+    .tab-bar    { display: none; }
+    .workout-card { padding: 20px; }
+}
