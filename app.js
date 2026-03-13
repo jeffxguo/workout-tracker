@@ -168,6 +168,15 @@ function calculateDaysAgo(dateString) {
     return Math.round(Math.abs(today - last) / 86400000);
 }
 
+// ── PR detection ───────────────────────────────────────────────────────────
+
+/** Returns the highest numeric weight ever logged for an exercise, or null. */
+function getMaxWeight(history) {
+    if (!history?.length) return null;
+    const vals = history.map(e => parseFloat(e.weight)).filter(n => !isNaN(n) && n > 0);
+    return vals.length ? Math.max(...vals) : null;
+}
+
 // ── Rendering ──────────────────────────────────────────────────────────────
 function renderWorkoutSection(category) {
     const data        = workoutData[category];
@@ -210,6 +219,12 @@ function renderWorkoutSection(category) {
             const opts = { month: 'short', day: 'numeric', year: 'numeric' };
             trackedLabel = `Tracked: ${formatDate(exercise.history[0].date, opts)}`;
         }
+
+        // PR badge — shown when current weight equals the all-time max
+        const maxW    = getMaxWeight(exercise.history);
+        const currW   = parseFloat(exercise.weight);
+        const showPR  = maxW !== null && !isNaN(currW) && currW > 0 && currW >= maxW;
+        const prBadge = showPR ? '<span class="pr-badge">PR 🏆</span>' : '';
 
         const card = document.createElement('div');
         card.className = 'exercise-item p-3 rounded-lg shadow-sm';
@@ -258,12 +273,15 @@ function renderWorkoutSection(category) {
                     </span>
                 </div>
             </div>
-            <div class="text-sm text-gray-600 mb-1">
-                Last:
-                <span class="font-medium text-gray-800">${exercise.weight || '–'}</span>
-                <span class="text-gray-400 mx-0.5">/</span>
-                <span class="font-medium text-gray-800">${exercise.reps || '–'}</span>
-                <span class="text-xs text-gray-400 ml-1">wt / reps</span>
+            <div class="text-sm text-gray-600 mb-1 flex items-center gap-2 flex-wrap">
+                <span>
+                    Last:
+                    <span class="font-medium text-gray-800">${exercise.weight || '–'}</span>
+                    <span class="text-gray-400 mx-0.5">/</span>
+                    <span class="font-medium text-gray-800">${exercise.reps || '–'}</span>
+                    <span class="text-xs text-gray-400 ml-1">wt / reps</span>
+                </span>
+                ${prBadge}
             </div>
             <div class="text-xs text-gray-400 mb-3">${trackedLabel}</div>
             <div class="update-form">
@@ -307,6 +325,12 @@ function updateExercise(category, exerciseId) {
     const exercise = workoutData[category].exercises.find(ex => ex.id === exerciseId);
     if (!exercise) return;
 
+    // Detect new PR before the history is updated
+    const parsedWeight = parseFloat(newWeight);
+    const oldMax       = getMaxWeight(exercise.history);
+    const isNewPR      = parsedWeight > 0 && !isNaN(parsedWeight) &&
+                         (oldMax === null || parsedWeight > oldMax);
+
     exercise.history.unshift({ date: getLocalDateString(), weight: newWeight, reps: newReps });
     exercise.weight = newWeight;
     exercise.reps   = newReps;
@@ -315,6 +339,10 @@ function updateExercise(category, exerciseId) {
     weightInput.value = '';
     repsInput.value   = '';
     renderWorkoutSection(category);
+
+    if (isNewPR) {
+        showToast(`New PR on ${exercise.name}! 🏆`, 'success');
+    }
 }
 
 function addExercise(category) {

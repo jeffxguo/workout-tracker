@@ -125,6 +125,21 @@ input[type="number"] {
 .history-table th { background-color: #f3f4f6; font-weight: 600; text-align: left; }
 .history-table tr:last-child td { border-bottom: none; }
 
+/* ── PR badge ─────────────────────────────────────── */
+.pr-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+    white-space: nowrap;
+}
+
 /* ── Toast ────────────────────────────────────────── */
 #toast {
     position: fixed;
