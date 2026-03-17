@@ -285,7 +285,7 @@ function renderWorkoutSection(category) {
             </div>
             <div class="text-xs text-gray-400 mb-3">${trackedLabel}</div>
             <div class="update-form">
-                <input type="text"
+                <input type="text" inputmode="text"
                        id="${category}-input-weight-${exercise.id}"
                        placeholder="Weight (e.g. 45lb bar, 2x25 DB)" class="border rounded">
                 <input type="text" inputmode="decimal"
