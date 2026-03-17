@@ -288,9 +288,9 @@ function renderWorkoutSection(category) {
                 <input type="number" inputmode="decimal"
                        id="${category}-input-weight-${exercise.id}"
                        placeholder="Weight" class="border rounded">
-                <input type="number" inputmode="numeric"
+                <input type="text" inputmode="decimal"
                        id="${category}-input-reps-${exercise.id}"
-                       placeholder="Reps" class="border rounded">
+                       placeholder="Reps (e.g. 5/5/4)" class="border rounded">
                 <button onclick="updateExercise('${category}', ${exercise.id})"
                         class="btn btn-secondary btn-sm flex-grow">Log</button>
             </div>
